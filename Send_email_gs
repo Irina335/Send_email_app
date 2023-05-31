@@ -1,0 +1,43 @@
+function onEdit(e) {
+  let sheetApp = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = sheetApp.getActiveSheet();
+  let teamSheet = sheetApp.getSheetByName("Team");
+
+  // let range = e.range;
+  let row = e.range.getRow();
+  let col = e.range.getColumn();
+  let cellValue = sheet.getActiveCell().getValue();
+  
+   
+  //serching for email of by owner name in the task sheet
+  let ownerName = sheet.getRange(row,3).getValue();
+  let sCol = teamSheet.getRange(2,1,teamSheet.getLastRow(),1).getValues();
+  let rowTeam = sCol.flat().indexOf(ownerName)+2;
+  let email = teamSheet.getRange(rowTeam,2).getValue();
+
+  let taskName = sheet.getRange(row,1).getValue();
+  let user = Session.getActiveUser().getEmail();
+  let cellLocation = sheet.getActiveCell().getA1Notation();
+  let row_active_user = sCol.flat().indexOf(user)+2;
+
+
+
+  let url = "https://docs.google.com/spreadsheets/d/1GIMnGWgjBsxWQv6Ze4D59hWCCVHsyWIA6X5y-0SGPQk/edit#gid=1937858079"
+ 
+  let concat_email = email + "," + user;
+
+  if (col == 6){
+    var confirm = Browser.msgBox( 'Do you want to notify '+ ownerName + ' that ' +taskName+ ' is changed to ' + cellValue, Browser.Buttons.YES_NO); 
+    if( confirm ='yes'){
+  var recipientsTO = email + "," + user;
+  var recipientsCC = user;
+  var Subject = "Task changes :" + user  +' set '+taskName + ' to ' + cellValue;
+  var html = url + '&range=' +cellLocation ;
+  MailApp.sendEmail({
+    to: recipientsTO,
+    cc: recipientsCC,
+    subject: Subject,
+    htmlBody: html})
+    };    
+  }
+}
